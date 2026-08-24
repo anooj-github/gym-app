@@ -436,57 +436,145 @@
       </div>
     </main>
 
-    <!-- Floating Action Button for Instant Log anywhere -->
+    <!-- Floating Action Button for Desktop Instant Log -->
     <button class="fab-quick-action" id="quick-add-fab" title="Quick Add Entry">
       +
     </button>
   </div>
 
+  <!-- Mobile Bottom Navigation Dock (Gym Calendar | Food & Cals | [+] Quick Add | Workouts | Analytics) -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mob-nav-btn" data-tab="calendar" onclick="window.WolfpackApp.switchTab('calendar')">
+      <span class="mob-nav-icon">📅</span>
+      <span class="mob-nav-label">Calendar</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="nutrition" onclick="window.WolfpackApp.switchTab('nutrition')">
+      <span class="mob-nav-icon">🥗</span>
+      <span class="mob-nav-label">Food & Cals</span>
+    </button>
+    <div class="mob-nav-center-wrap">
+      <button class="mob-center-plus-btn" onclick="window.WolfpackApp.openQuickAddModal()" title="Quick Add">
+        <span>+</span>
+      </button>
+    </div>
+    <button class="mob-nav-btn" data-tab="workouts" onclick="window.WolfpackApp.switchTab('workouts')">
+      <span class="mob-nav-icon">🏋️</span>
+      <span class="mob-nav-label">Workouts</span>
+    </button>
+    <button class="mob-nav-btn" data-tab="analytics" onclick="window.WolfpackApp.switchTab('analytics')">
+      <span class="mob-nav-icon">📈</span>
+      <span class="mob-nav-label">Analytics</span>
+    </button>
+  </nav>
+
   <!-- =========================================================================
        MODALS
        ========================================================================= -->
 
-  <!-- 1. QUICK ADD MODAL -->
+  <!-- 1. COMPREHENSIVE QUICK ADD MODAL (Weight, Workout, Steps, Food, Gymlog) -->
   <div id="quick-add-modal" class="modal-overlay">
-    <div class="modal-window">
+    <div class="modal-window" style="max-width: 560px;">
       <div class="modal-header">
         <h3 class="modal-title">⚡ Quick Log Entry</h3>
         <button class="btn-close-modal" onclick="window.WolfpackApp.closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
         <div class="quick-add-grid-sections">
-          <!-- Log Weight -->
+          <!-- 1. Log Weight -->
           <div class="qa-block">
-            <div class="qa-block-title"><span>⚖️</span> Log Daily Weight (kg)</div>
+            <div class="qa-block-title">
+              <span>⚖️</span> Log Daily Weight (kg)
+              <span id="qa-bmi-preview" style="margin-left: auto; font-size: 0.75rem; color: var(--color-cyan); font-weight: 600;"></span>
+            </div>
             <div class="qa-input-row">
-              <input type="number" id="qa-weight-input" step="0.1" class="input-field" placeholder="e.g. 78.5">
+              <input type="number" id="qa-weight-input" step="0.1" class="input-field" placeholder="e.g. 74.0" oninput="window.WolfpackApp.previewQuickBmi(this.value)">
               <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickWeight()">Save</button>
             </div>
           </div>
 
-          <!-- Log Steps -->
+          <!-- 2. Log Workout Session -->
           <div class="qa-block">
-            <div class="qa-block-title"><span>👟</span> Log Daily Steps</div>
+            <div class="qa-block-title">
+              <span>🏋️</span> Log Workout Session
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-subtle" style="flex: 1; border-color: var(--color-gold); color: var(--color-gold); font-size: 0.82rem;" onclick="window.WolfpackApp.quickLogRoutine('chest_triceps')">
+                🔥 Chest-Tris
+              </button>
+              <button type="button" class="btn-subtle" style="flex: 1; border-color: var(--color-cyan); color: var(--color-cyan); font-size: 0.82rem;" onclick="window.WolfpackApp.quickLogRoutine('back_biceps')">
+                ⚡ Back-Bi
+              </button>
+              <button type="button" class="btn-subtle" style="flex: 1; border-color: var(--color-purple); color: #c084fc; font-size: 0.82rem;" onclick="window.WolfpackApp.quickLogRoutine('shoulder_core')">
+                🛡️ Shoulder
+              </button>
+              <button type="button" class="btn-subtle" style="flex: 1; border-color: var(--color-emerald); color: var(--color-emerald); font-size: 0.82rem;" onclick="window.WolfpackApp.quickLogRoutine('legs')">
+                🦵 Legs
+              </button>
+            </div>
+            <button type="button" class="btn-subtle" style="width: 100%; margin-top: 8px; font-size: 0.8rem;" onclick="window.WolfpackApp.openWorkoutBuilderModal()">
+              + Open Custom Workout Builder
+            </button>
+          </div>
+
+          <!-- 3. Log Steps Count -->
+          <div class="qa-block">
+            <div class="qa-block-title"><span>👟</span> Log Daily Steps Count</div>
             <div class="qa-input-row">
               <input type="number" id="qa-steps-input" step="100" class="input-field" placeholder="e.g. 8500">
               <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickSteps()">Save</button>
             </div>
+            <div style="display: flex; gap: 6px; margin-top: 6px;">
+              <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.fillQuickSteps(2000)">+2k</button>
+              <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.fillQuickSteps(5000)">+5k</button>
+              <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.fillQuickSteps(8000)">8k</button>
+              <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.fillQuickSteps(10000)">10k</button>
+            </div>
           </div>
 
-          <!-- Quick Food Search & Add -->
+          <!-- 4. Quick Food & Calorie Intake -->
           <div class="qa-block">
             <div class="qa-block-title">
-              <span>🥗</span> Quick Add Food / Meal
-              <select id="qa-meal-type-select" style="margin-left: auto; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">
+              <span>🥗</span> Food & Calories Intake
+              <select id="qa-meal-type-select" style="margin-left: auto; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 3px 8px; font-size: 0.75rem;">
                 <option value="Breakfast">Breakfast</option>
                 <option value="Lunch">Lunch</option>
                 <option value="Dinner">Dinner</option>
                 <option value="Snacks">Snacks</option>
               </select>
             </div>
-            <input type="text" id="qa-food-search" class="input-field" placeholder="Type food name (e.g. Chicken, Oats, Salmon, Whey)...">
+            
+            <!-- Quick Direct Calories Entry -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 6px; margin-bottom: 8px;">
+              <input type="text" id="qa-direct-food-name" class="input-field" placeholder="Food item (e.g. Protein Shake)" style="font-size: 0.82rem; padding: 7px 10px;">
+              <input type="number" id="qa-direct-food-cals" class="input-field" placeholder="kcal" style="font-size: 0.82rem; padding: 7px 10px;">
+              <input type="number" id="qa-direct-food-prot" class="input-field" placeholder="P (g)" style="font-size: 0.82rem; padding: 7px 10px;">
+              <button type="button" class="btn-primary-action" style="padding: 7px 12px; font-size: 0.8rem;" onclick="window.WolfpackApp.submitQuickDirectFood()">Add</button>
+            </div>
+
+            <!-- Search Database -->
+            <input type="text" id="qa-food-search" class="input-field" placeholder="🔍 Or search 50+ fitness foods (Chicken, Oats, Eggs, Whey)...">
             <div id="qa-food-results" class="qa-results-box">
               <div class="hint-text">Search 50+ fitness foods in database...</div>
+            </div>
+          </div>
+
+          <!-- 5. Gymlog Entry (Quick Day Check-In) -->
+          <div class="qa-block">
+            <div class="qa-block-title"><span>⚡</span> Gymlog Entry (Today's Training Check-In)</div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">Select today's workout split to mark your gym day:</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button type="button" class="btn-subtle" style="text-align: left; padding: 8px 12px; border-color: rgba(245, 158, 11, 0.4);" onclick="window.WolfpackApp.quickCheckInGymSplit('chest_triceps')">
+                🔥 <strong>Chest - Triceps</strong>
+              </button>
+              <button type="button" class="btn-subtle" style="text-align: left; padding: 8px 12px; border-color: rgba(0, 240, 255, 0.4);" onclick="window.WolfpackApp.quickCheckInGymSplit('back_biceps')">
+                ⚡ <strong>Back - Biceps</strong>
+              </button>
+              <button type="button" class="btn-subtle" style="text-align: left; padding: 8px 12px; border-color: rgba(168, 85, 247, 0.4);" onclick="window.WolfpackApp.quickCheckInGymSplit('shoulder_core')">
+                🛡️ <strong>Shoulder - Core</strong>
+              </button>
+              <button type="button" class="btn-subtle" style="text-align: left; padding: 8px 12px; border-color: rgba(16, 185, 129, 0.4);" onclick="window.WolfpackApp.quickCheckInGymSplit('legs')">
+                🦵 <strong>Legs</strong>
+              </button>
             </div>
           </div>
         </div>

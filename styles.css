@@ -1603,7 +1603,115 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(245, 158, 11, 0.2);
 }
 
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION DOCK (Native App Feel)
+   ========================================================================== */
+
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  background: rgba(11, 15, 23, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px env(safe-area-inset-bottom, 0);
+}
+
+.mob-nav-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 600;
+  gap: 2px;
+  cursor: pointer;
+  flex: 1;
+  padding: 8px 0;
+  transition: var(--transition-smooth);
+}
+
+.mob-nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: var(--transition-smooth);
+}
+
+.mob-nav-btn:hover,
+.mob-nav-btn.active {
+  color: var(--color-cyan);
+}
+
+.mob-nav-btn.active .mob-nav-icon {
+  transform: translateY(-2px) scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
+}
+
+/* Center Elevated '+' Quick Add Button */
+.mob-nav-center-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.mob-center-plus-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00f0ff, #0284c7);
+  color: var(--text-dark);
+  font-size: 28px;
+  font-weight: 800;
+  border: 3px solid var(--bg-app);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.5), 0 0 0 3px rgba(0, 240, 255, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -24px;
+  transition: var(--transition-smooth);
+  animation: pulseFab 2.5s infinite;
+}
+
+.mob-center-plus-btn:hover,
+.mob-center-plus-btn:active {
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.7);
+}
+
 /* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 76px;
+  }
+  .app-wrapper {
+    padding-bottom: 90px;
+  }
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  .fab-quick-action {
+    display: none !important;
+  }
+  .nav-tabs-bar {
+    display: none; /* Mobile bottom dock takes over navigation */
+  }
+}
+
 @media (max-width: 680px) {
   .app-header {
     flex-direction: column;

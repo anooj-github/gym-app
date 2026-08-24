@@ -147,6 +147,10 @@ window.WolfpackApp = {
       btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 
+    document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+    });
+
     document.querySelectorAll('.tab-content-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === `tab-${tabId}`);
     });
@@ -626,6 +630,98 @@ window.WolfpackApp = {
     this.closeAllModals();
     this.refreshAll();
     this.showToast(`Logged weight: ${val.toFixed(1)} kg! BMI updated ⚡`);
+  },
+
+  previewQuickBmi(weightVal) {
+    const preview = document.getElementById('qa-bmi-preview');
+    if (!preview) return;
+    const w = parseFloat(weightVal);
+    if (!w || isNaN(w) || w <= 0) {
+      preview.textContent = '';
+      return;
+    }
+    const h = (window.WolfpackTracker.userProfile.heightCm || 172) / 100;
+    const bmi = (w / (h * h)).toFixed(1);
+    preview.textContent = `→ BMI: ${bmi}`;
+  },
+
+  fillQuickSteps(amount) {
+    const input = document.getElementById('qa-steps-input');
+    if (input) input.value = amount;
+  },
+
+  submitQuickDirectFood() {
+    const nameInput = document.getElementById('qa-direct-food-name');
+    const calsInput = document.getElementById('qa-direct-food-cals');
+    const protInput = document.getElementById('qa-direct-food-prot');
+    const mealType = document.getElementById('qa-meal-type-select')?.value || 'Breakfast';
+
+    const name = (nameInput?.value || '').trim() || 'Meal / Food Item';
+    const cals = parseInt(calsInput?.value, 10);
+    const prot = parseFloat(protInput?.value) || 0;
+
+    if (isNaN(cals) || cals <= 0) {
+      this.showToast('Please enter calorie amount (kcal)', 'warning');
+      return;
+    }
+
+    const dayKey = window.WolfpackTracker.getSelectedDateKey();
+    window.WolfpackTracker.addFoodEntry(dayKey, {
+      name,
+      mealType,
+      unitDisplay: '1 serving',
+      calories: cals,
+      protein: prot,
+      carbs: 0,
+      fat: 0
+    });
+
+    if (nameInput) nameInput.value = '';
+    if (calsInput) calsInput.value = '';
+    if (protInput) protInput.value = '';
+
+    this.closeAllModals();
+    this.refreshAll();
+    this.showToast(`Logged ${cals} kcal to ${mealType}! 🥗`);
+  },
+
+  quickLogRoutine(splitId) {
+    const split = window.WolfpackCalendar.WORKOUT_SPLITS.find(s => s.id === splitId) || { name: 'Workout Routine' };
+    const exercises = window.WolfpackTracker.getExercisesForSplit(splitId);
+    const dayKey = window.WolfpackTracker.getSelectedDateKey();
+
+    window.WolfpackTracker.addWorkoutSession(dayKey, {
+      title: split.name + ' Routine',
+      durationMinutes: 50,
+      exercises
+    });
+
+    window.WolfpackTracker.setGymDay(dayKey, {
+      isGymDay: true,
+      splitId: splitId,
+      notes: split.name
+    });
+
+    this.closeAllModals();
+    this.refreshAll();
+    window.WolfpackCalendar.render();
+    this.showToast(`Logged ${split.name} workout & marked gym day! 🔥`);
+  },
+
+  quickCheckInGymSplit(splitId) {
+    const split = window.WolfpackCalendar.WORKOUT_SPLITS.find(s => s.id === splitId) || { name: 'Gym Training' };
+    const dayKey = window.WolfpackTracker.getSelectedDateKey();
+
+    window.WolfpackTracker.setGymDay(dayKey, {
+      isGymDay: true,
+      splitId: splitId,
+      notes: split.name
+    });
+
+    this.closeAllModals();
+    this.refreshAll();
+    window.WolfpackCalendar.render();
+    this.showToast(`Checked in: ${split.name}! ⚡`);
   },
 
   submitQuickSteps() {
