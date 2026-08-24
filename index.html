@@ -442,7 +442,7 @@
     </button>
   </div>
 
-  <!-- Mobile Bottom Navigation Dock (Dashboard | Calendar | Food | [+] Quick Add | Workouts | Analytics) -->
+  <!-- Mobile Bottom Navigation Dock (Home | Calendar | Food | Workouts | Analytics) -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
     <button class="mob-nav-btn active" data-tab="dashboard" onclick="window.WolfpackApp.switchTab('dashboard')">
       <span class="mob-nav-icon">📊</span>
@@ -456,11 +456,6 @@
       <span class="mob-nav-icon">🥗</span>
       <span class="mob-nav-label">Food</span>
     </button>
-    <div class="mob-nav-center-wrap">
-      <button class="mob-center-plus-btn" onclick="window.WolfpackApp.openQuickAddModal()" title="Quick Add">
-        <span>+</span>
-      </button>
-    </div>
     <button class="mob-nav-btn" data-tab="workouts" onclick="window.WolfpackApp.switchTab('workouts')">
       <span class="mob-nav-icon">🏋️</span>
       <span class="mob-nav-label">Workouts</span>
@@ -480,7 +475,7 @@
     <div class="modal-window" style="max-width: 560px;">
       <div class="modal-header">
         <h3 class="modal-title">⚡ Quick Log Entry</h3>
-        <button class="btn-close-modal" onclick="window.WolfpackApp.closeAllModals()">✕</button>
+        <button type="button" class="btn-close-modal" onclick="window.WolfpackApp.closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
         <div class="quick-add-grid-sections">
@@ -492,7 +487,7 @@
             </div>
             <div class="qa-input-row">
               <input type="number" id="qa-weight-input" step="0.1" class="input-field" placeholder="e.g. 74.0" oninput="window.WolfpackApp.previewQuickBmi(this.value)">
-              <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickWeight()">Save</button>
+              <button type="button" class="btn-primary-action" onclick="window.WolfpackApp.submitQuickWeight()">Save</button>
             </div>
           </div>
 
@@ -525,7 +520,7 @@
             <div class="qa-block-title"><span>👟</span> Log Daily Steps Count</div>
             <div class="qa-input-row">
               <input type="number" id="qa-steps-input" step="100" class="input-field" placeholder="e.g. 8500">
-              <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickSteps()">Save</button>
+              <button type="button" class="btn-primary-action" onclick="window.WolfpackApp.submitQuickSteps()">Save</button>
             </div>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.fillQuickSteps(2000)">+2k</button>

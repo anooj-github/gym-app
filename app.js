@@ -1054,6 +1054,20 @@ window.WolfpackApp = {
   },
 
   openQuickAddModal() {
+    const dayKey = window.WolfpackTracker.getSelectedDateKey();
+    const dayData = window.WolfpackTracker.getDayData(dayKey);
+    
+    const weightInput = document.getElementById('qa-weight-input');
+    const stepsInput = document.getElementById('qa-steps-input');
+    
+    if (weightInput) {
+      weightInput.value = dayData.weight || '';
+      if (dayData.weight) this.previewQuickBmi(dayData.weight);
+    }
+    if (stepsInput) {
+      stepsInput.value = (dayData.steps !== undefined && dayData.steps > 0) ? dayData.steps : '';
+    }
+    
     const modal = document.getElementById('quick-add-modal');
     if (modal) modal.classList.add('active');
   },
