@@ -9,6 +9,13 @@ window.WolfpackCloudSync = {
     this.scriptUrl = localStorage.getItem('wolfpack_apps_script_url') || this.DEFAULT_URL;
     localStorage.setItem('wolfpack_apps_script_url', this.scriptUrl);
     this.updateStatusBadge();
+
+    // Auto-pull latest synced data from Google Sheets on app startup
+    if (this.isConfigured()) {
+      setTimeout(() => {
+        this.pullFromCloud(true);
+      }, 600);
+    }
   },
 
   getScriptUrl() {
