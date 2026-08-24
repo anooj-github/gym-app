@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wolfpack — Next-Gen Fitness & Health Tracker</title>
+  <meta name="description" content="Wolfpack - Elite Fitness Tracking with Gym Day Calendar, Calorie Intake, Steps, Weight and Auto-BMI calculation.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- SVG Gradients Definition -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+    <defs>
+      <linearGradient id="calGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f59e0b" />
+        <stop offset="100%" stop-color="#ef4444" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon">🐺</div>
+        <div class="brand-titles">
+          <h1>Wolfpack <span class="text-cyan">PRO</span></h1>
+          <span class="brand-tagline">Discipline & Consistency</span>
+        </div>
+      </div>
+
+      <!-- Date Stepper Bar -->
+      <div class="date-stepper-bar">
+        <button class="date-btn" id="date-prev-btn" title="Previous Day">◀</button>
+        <div class="date-display-wrap" title="Click to pick a specific date">
+          <span class="current-date-text" id="current-date-display">Today</span>
+          <input type="date" id="date-picker-input" class="date-picker-hidden">
+        </div>
+        <button class="date-btn" id="date-next-btn" title="Next Day">▶</button>
+        <button class="date-btn" id="date-today-btn" title="Jump to Today" style="font-size: 11px; font-weight: 700;">TODAY</button>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <div id="header-cloud-status" class="cloud-status-chip local" onclick="window.WolfpackApp.openCloudSyncModal()" title="Manage Google Sheets Cloud Sync">
+          <span class="cloud-dot local"></span> Local Storage
+        </div>
+        <button class="btn-primary-action" id="header-quick-add-btn">
+          <span>+</span> Quick Log
+        </button>
+        <button class="btn-icon-round" id="header-profile-btn" title="Profile & Targets">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-bar">
+      <button class="nav-tab-btn active" data-tab="dashboard">
+        <span>📊</span> Dashboard
+      </button>
+      <button class="nav-tab-btn" data-tab="calendar">
+        <span>📅</span> Gym Calendar
+      </button>
+      <button class="nav-tab-btn" data-tab="nutrition">
+        <span>🥗</span> Calories & Food
+      </button>
+      <button class="nav-tab-btn" data-tab="workouts">
+        <span>🏋️</span> Workouts
+      </button>
+      <button class="nav-tab-btn" data-tab="analytics">
+        <span>📈</span> Analytics
+      </button>
+    </nav>
+
+    <!-- =========================================================================
+         TAB 1: DASHBOARD (HOME OVERVIEW)
+         ========================================================================= -->
+    <main id="tab-dashboard" class="tab-content-panel active">
+      <!-- 4 Core Metrics Grid -->
+      <section class="metrics-hero-grid">
+        <!-- 1. Gym Days & Streak Card -->
+        <div class="metric-card card-gym">
+          <div>
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon">⚡</span>
+                <span class="card-title">Gym Streak</span>
+              </div>
+              <div id="metric-gym-status-badge">
+                <span class="badge-active">Push Day</span>
+              </div>
+            </div>
+            <div class="card-main-val" id="metric-gym-streak">30 Days</div>
+            <div class="card-subtext">Current consecutive training streak 🔥</div>
+          </div>
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <button id="metric-gym-toggle-btn" class="btn-glow-primary" onclick="window.WolfpackCalendar.quickToggleTodayGym()">
+              ✓ Checked In
+            </button>
+            <button class="btn-link" onclick="window.WolfpackApp.switchTab('calendar')">View Calendar →</button>
+          </div>
+        </div>
+
+        <!-- 2. Calories Intake Card -->
+        <div class="metric-card card-cals">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <span class="card-icon">🔥</span>
+              <span class="card-title">Calories Intake</span>
+            </div>
+            <span id="metric-cals-target" class="status-tag subtle">/ 2,300 kcal</span>
+          </div>
+
+          <div class="cal-widget-layout">
+            <div class="cal-ring-container">
+              <svg class="cal-svg-ring" viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                <circle id="metric-cals-progress-circle" class="ring-progress" cx="50" cy="50" r="42" style="stroke-dasharray: 263.89; stroke-dashoffset: 263.89;"></circle>
+              </svg>
+              <div class="cal-ring-center">
+                <div class="cal-center-val" id="metric-cals-consumed">0</div>
+                <div class="cal-center-unit">kcal</div>
+              </div>
+            </div>
+            <div>
+              <div id="metric-cals-remaining" class="card-subtext" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">
+                <span class="text-amber">2,300</span> kcal left
+              </div>
+              <button class="btn-subtle" style="padding: 4px 10px; font-size: 0.78rem;" onclick="window.WolfpackApp.openQuickAddModal()">+ Add Food</button>
+            </div>
+          </div>
+
+          <!-- Macro Pills -->
+          <div class="macro-mini-row">
+            <div class="macro-mini-item">
+              <span class="text-cyan">Protein</span>
+              <strong id="macro-protein-val" class="text-cyan">0g</strong>
+            </div>
+            <div class="macro-mini-item">
+              <span class="text-purple">Carbs</span>
+              <strong id="macro-carbs-val" class="text-purple">0g</strong>
+            </div>
+            <div class="macro-mini-item">
+              <span class="text-rose">Fat</span>
+              <strong id="macro-fat-val" class="text-rose">0g</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Steps Count Card -->
+        <div class="metric-card card-steps">
+          <div>
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon">👟</span>
+                <span class="card-title">Daily Steps</span>
+              </div>
+              <span id="metric-steps-target" class="status-tag subtle">Goal: 10,000</span>
+            </div>
+            <div class="card-main-val" id="metric-steps-val">0</div>
+            <div class="progress-bar-wrap">
+              <div id="metric-steps-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary);">
+              <span id="metric-steps-distance">0.00 km</span>
+              <span id="metric-steps-burned">~0 kcal</span>
+            </div>
+          </div>
+          <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn-subtle" style="padding: 4px 10px; font-size: 0.78rem;" onclick="window.WolfpackApp.openQuickAddModal()">+ Log Steps</button>
+            <span class="text-muted" style="font-size: 0.75rem;">Daily target active</span>
+          </div>
+        </div>
+
+        <!-- 4. Weight & Auto-BMI Card -->
+        <div class="metric-card card-weight">
+          <div>
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon">⚖️</span>
+                <span class="card-title">Weight & BMI</span>
+              </div>
+              <span id="metric-weight-logged-tag" class="status-tag success">✓ Logged Today</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div class="card-main-val" id="metric-weight-val">74.0 kg</div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">AUTO BMI</span>
+                <div style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: var(--color-cyan);" id="metric-bmi-val">25.0</div>
+              </div>
+            </div>
+
+            <div class="card-subtext" id="metric-weight-diff" style="margin-bottom: 6px;">
+              🎯 At Target (74.0 kg)
+            </div>
+
+            <!-- Visual BMI Gauge -->
+            <div class="bmi-gauge-wrap">
+              <div class="bmi-bar-track">
+                <div id="bmi-gauge-needle" class="bmi-needle" style="left: 50%;"></div>
+              </div>
+              <div class="bmi-labels-row">
+                <span>18.5 Under</span>
+                <span id="metric-bmi-category" style="font-weight: 700; color: var(--color-gold);">Normal / Muscular</span>
+                <span>30.0+ Obese</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn-subtle" style="padding: 4px 10px; font-size: 0.78rem;" onclick="window.WolfpackApp.openQuickAddModal()">+ Log Weight</button>
+            <button class="btn-link" onclick="window.WolfpackApp.openProfileModal()">Edit Height/Goal</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Water Quick Tracker Banner -->
+      <section class="water-quick-row">
+        <div class="water-info">
+          <span class="water-icon">💧</span>
+          <div class="water-meta">
+            <h4>Hydration Tracker: <span id="metric-water-val" class="text-cyan">2.50L / 3.0L</span></h4>
+            <div class="progress-bar-wrap" style="width: 220px; height: 6px; margin: 4px 0 0 0;">
+              <div id="metric-water-bar" class="progress-bar-fill" style="width: 83%; background: linear-gradient(90deg, #38bdf8, #00f0ff);"></div>
+            </div>
+          </div>
+        </div>
+        <div class="water-btns">
+          <button class="btn-water-add" onclick="window.WolfpackApp.quickAddWater(250)">+250 ml</button>
+          <button class="btn-water-add" onclick="window.WolfpackApp.quickAddWater(500)">+500 ml</button>
+        </div>
+      </section>
+
+      <!-- Dashboard 2-Column Split -->
+      <div class="dashboard-sections-grid">
+        <!-- Left: Today's Logged Nutrition -->
+        <div class="section-card">
+          <div class="section-header-flex">
+            <h3 class="section-heading"><span>🥗</span> Today's Meals & Calories</h3>
+            <button class="btn-subtle" onclick="window.WolfpackApp.openAddFoodModal()">+ Add Food</button>
+          </div>
+          <div id="logged-meals-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Right: Today's Workouts & Mini Trend -->
+        <div>
+          <div class="section-card">
+            <div class="section-header-flex">
+              <h3 class="section-heading"><span>🏋️</span> Workout Sessions</h3>
+              <button class="btn-subtle" onclick="window.WolfpackApp.openWorkoutBuilderModal()">+ Log Workout</button>
+            </div>
+            <div id="logged-workouts-container">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header-flex">
+              <h3 class="section-heading"><span>📉</span> 14-Day Weight Progression</h3>
+              <button class="btn-link" onclick="window.WolfpackApp.switchTab('analytics')">Full Trends →</button>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="weight-trend-canvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         TAB 2: INTERACTIVE GYM CALENDAR
+         ========================================================================= -->
+    <main id="tab-calendar" class="tab-content-panel">
+      <!-- Calendar Stats Row -->
+      <div class="calendar-top-stats">
+        <div class="cal-stat-box">
+          <div class="cal-stat-label">Gym Days This Month</div>
+          <div class="cal-stat-number text-gold" id="cal-stat-monthly-count">30</div>
+          <small class="text-muted" id="cal-stat-monthly-target">30 Days Target</small>
+        </div>
+        <div class="cal-stat-box">
+          <div class="cal-stat-label">Consistency Rate</div>
+          <div class="cal-stat-number text-cyan" id="cal-stat-consistency">100%</div>
+          <small class="text-muted">Target Completion</small>
+        </div>
+        <div class="cal-stat-box">
+          <div class="cal-stat-label">Active Streak</div>
+          <div class="cal-stat-number text-emerald" id="cal-stat-streak">30 Days 🔥</div>
+          <small class="text-muted">Keep it rolling!</small>
+        </div>
+      </div>
+
+      <!-- Calendar Container -->
+      <div class="calendar-container">
+        <div class="calendar-nav-header">
+          <div>
+            <h2 class="calendar-month-title" id="calendar-month-year">August 2026</h2>
+            <small class="text-muted">Click any date to toggle Gym Day & select workout split</small>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-subtle" onclick="window.WolfpackCalendar.setMonth(-1)">◀ Previous</button>
+            <button class="btn-subtle" onclick="window.WolfpackCalendar.goToToday()">Today</button>
+            <button class="btn-subtle" onclick="window.WolfpackCalendar.setMonth(1)">Next ▶</button>
+          </div>
+        </div>
+
+        <!-- Weekdays Row -->
+        <div class="cal-weekdays-header">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+
+        <!-- Days Grid -->
+        <div class="calendar-days-grid" id="calendar-days-grid">
+          <!-- Populated dynamically by calendar.js -->
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         TAB 3: NUTRITION & FOOD DATABASE
+         ========================================================================= -->
+    <main id="tab-nutrition" class="tab-content-panel">
+      <div class="section-card">
+        <div class="section-header-flex">
+          <div>
+            <h2 class="section-heading"><span>🥗</span> Food Calorie & Macro Database</h2>
+            <small class="text-muted">Search 50+ fitness foods or calculate custom portions</small>
+          </div>
+          <button class="btn-primary-action" onclick="window.WolfpackApp.openCustomFoodModal()">+ Create Custom Food</button>
+        </div>
+
+        <div class="food-search-bar">
+          <input type="text" id="food-search-input" class="input-field" placeholder="🔍 Search foods (e.g. Chicken, Rice, Oats, Salmon, Eggs, Whey, Greek Yogurt)...">
+        </div>
+
+        <div class="food-database-grid" id="food-database-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         TAB 4: WORKOUTS & REST TIMER
+         ========================================================================= -->
+    <main id="tab-workouts" class="tab-content-panel">
+      <!-- Rest Timer Banner -->
+      <div id="rest-timer-banner" class="rest-timer-banner">
+        <div class="timer-left">
+          <span style="font-size: 1.8rem;">⏱️</span>
+          <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: #a855f7; font-weight: 700;">Rest Timer Running</div>
+            <div class="timer-digits" id="rest-timer-display">1:30</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-subtle" onclick="window.WolfpackApp.startRestTimer(60)">+60s</button>
+          <button class="btn-subtle" onclick="window.WolfpackApp.startRestTimer(90)">+90s</button>
+          <button class="btn-subtle" style="color: var(--color-rose);" onclick="window.WolfpackApp.stopRestTimer()">Stop</button>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header-flex">
+          <div>
+            <h2 class="section-heading"><span>🏋️</span> Workout Session Logger</h2>
+            <small class="text-muted">Log sets, reps, and weights. Automatically marks today as a Gym Day.</small>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-subtle" onclick="window.WolfpackApp.startRestTimer(90)">⏱️ Start 90s Rest</button>
+            <button class="btn-primary-action" onclick="window.WolfpackApp.openWorkoutBuilderModal()">+ New Workout Session</button>
+          </div>
+        </div>
+
+        <div id="workouts-full-list" style="margin-top: 16px;">
+          <!-- Will render existing session or prompts -->
+          <div class="empty-state-box">
+            <span class="empty-icon">💪</span>
+            <p>Ready to crush today's session? Build and log your exercises below.</p>
+            <button class="btn-primary-action" onclick="window.WolfpackApp.openWorkoutBuilderModal()">+ Launch Workout Logger</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         TAB 5: TRENDS & ANALYTICS
+         ========================================================================= -->
+    <main id="tab-analytics" class="tab-content-panel">
+      <div class="chart-card">
+        <div class="section-header-flex">
+          <div>
+            <h3 class="section-heading"><span>⚖️</span> Weight Progression (14 Days)</h3>
+            <small class="text-muted">Track bodyweight changes against your target weight goal</small>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap" style="height: 260px;">
+          <canvas id="weight-trend-analytics-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-sections-grid">
+        <div class="chart-card">
+          <div class="section-header-flex">
+            <h3 class="section-heading"><span>👟</span> Daily Steps Consistency</h3>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="steps-trend-canvas"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="section-header-flex">
+            <h3 class="section-heading"><span>🔥</span> Calories Intake vs Target</h3>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="calories-trend-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Action Button for Instant Log anywhere -->
+    <button class="fab-quick-action" id="quick-add-fab" title="Quick Add Entry">
+      +
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- 1. QUICK ADD MODAL -->
+  <div id="quick-add-modal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">⚡ Quick Log Entry</h3>
+        <button class="btn-close-modal" onclick="window.WolfpackApp.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="quick-add-grid-sections">
+          <!-- Log Weight -->
+          <div class="qa-block">
+            <div class="qa-block-title"><span>⚖️</span> Log Daily Weight (kg)</div>
+            <div class="qa-input-row">
+              <input type="number" id="qa-weight-input" step="0.1" class="input-field" placeholder="e.g. 78.5">
+              <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickWeight()">Save</button>
+            </div>
+          </div>
+
+          <!-- Log Steps -->
+          <div class="qa-block">
+            <div class="qa-block-title"><span>👟</span> Log Daily Steps</div>
+            <div class="qa-input-row">
+              <input type="number" id="qa-steps-input" step="100" class="input-field" placeholder="e.g. 8500">
+              <button class="btn-primary-action" onclick="window.WolfpackApp.submitQuickSteps()">Save</button>
+            </div>
+          </div>
+
+          <!-- Quick Food Search & Add -->
+          <div class="qa-block">
+            <div class="qa-block-title">
+              <span>🥗</span> Quick Add Food / Meal
+              <select id="qa-meal-type-select" style="margin-left: auto; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem;">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snacks">Snacks</option>
+              </select>
+            </div>
+            <input type="text" id="qa-food-search" class="input-field" placeholder="Type food name (e.g. Chicken, Oats, Salmon, Whey)...">
+            <div id="qa-food-results" class="qa-results-box">
+              <div class="hint-text">Search 50+ fitness foods in database...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CALENDAR DAY DETAILS MODAL -->
+  <div id="calendar-day-modal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="cal-modal-date-title">Date Details</h3>
+        <button class="btn-close-modal" onclick="window.WolfpackCalendar.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; font-size: 1rem; margin-bottom: 16px;">
+          <input type="checkbox" id="cal-modal-is-gym-checkbox" style="width: 18px; height: 18px; accent-color: var(--color-gold);" onchange="window.WolfpackCalendar.onToggleGymCheckbox(this)">
+          Mark as Gym Training Day 🔥
+        </label>
+
+        <div id="cal-modal-split-section">
+          <label style="font-size: 0.82rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Select Workout Split</label>
+          <div class="split-options-grid" id="cal-modal-split-options">
+            <!-- Rendered by calendar.js -->
+          </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <label style="font-size: 0.82rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px;">Workout / Day Notes</label>
+          <textarea id="cal-modal-notes" class="input-field" rows="3" placeholder="Felt strong on bench press, hit 90kg PR..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="window.WolfpackCalendar.closeModal()">Cancel</button>
+        <button class="btn-primary-action" onclick="window.WolfpackCalendar.saveDayDetails()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ADD FOOD PORTION CALCULATOR MODAL -->
+  <div id="add-food-detail-modal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="add-food-title">Add Food</h3>
+        <button class="btn-close-modal" onclick="document.getElementById('add-food-detail-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="add-food-selected-id">
+        <p id="add-food-serving-label" class="text-secondary" style="font-size: 0.85rem; margin-bottom: 12px;">Serving: 100g</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Servings / Multiplier</label>
+            <input type="number" id="add-food-qty-input" step="0.25" min="0.25" value="1" class="input-field" oninput="window.WolfpackApp.updateFoodDetailCalc()">
+          </div>
+          <div>
+            <label style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Assign Meal</label>
+            <select id="add-food-meal-select" class="input-field">
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Dinner">Dinner</option>
+              <option value="Snacks">Snacks</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-input); border-radius: var(--radius-md); padding: 14px; text-align: center; border: 1px solid var(--border-subtle);">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-secondary);">Calculated Nutrition</div>
+          <div id="add-food-calc-cals" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--color-gold); margin: 4px 0;">-- kcal</div>
+          <div style="display: flex; justify-content: center; gap: 16px; font-size: 0.88rem;">
+            <span id="add-food-calc-protein" class="text-cyan">--g P</span>
+            <span id="add-food-calc-carbs" class="text-purple">--g C</span>
+            <span id="add-food-calc-fat" class="text-rose">--g F</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="document.getElementById('add-food-detail-modal').classList.remove('active')">Cancel</button>
+        <button class="btn-primary-action" onclick="window.WolfpackApp.saveFoodDetailToLog()">Log Food</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. WORKOUT SESSION BUILDER MODAL -->
+  <div id="workout-builder-modal" class="modal-overlay">
+    <div class="modal-window" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🏋️ Log Workout Session</h3>
+        <button class="btn-close-modal" onclick="document.getElementById('workout-builder-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Session Title / Focus</label>
+            <input type="text" id="wb-session-title" class="input-field" placeholder="e.g. Chest & Triceps Blast" value="Chest & Triceps Blast">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Duration (min)</label>
+            <input type="number" id="wb-duration" class="input-field" value="50">
+          </div>
+        </div>
+
+        <div style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px;">Exercises & Sets</div>
+        
+        <div id="wb-exercises-container">
+          <!-- Exercise blocks inserted here -->
+        </div>
+
+        <button type="button" class="btn-subtle" style="width: 100%; margin-top: 8px;" onclick="window.WolfpackApp.addExerciseRowToBuilder()">
+          + Add Another Exercise
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="document.getElementById('workout-builder-modal').classList.remove('active')">Cancel</button>
+        <button class="btn-primary-action" onclick="window.WolfpackApp.saveWorkoutBuilderSession()">Save Workout Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PROFILE & SETTINGS MODAL -->
+  <div id="profile-modal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ Profile & Fitness Targets</h3>
+        <button class="btn-close-modal" onclick="document.getElementById('profile-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Profile Name</label>
+            <input type="text" id="prof-name" class="input-field" value="Pack Leader">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Height (cm) <small style="color: var(--color-cyan);">(Used for BMI)</small></label>
+              <input type="number" id="prof-height" class="input-field" value="172">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Goal Weight (kg)</label>
+              <input type="number" step="0.5" id="prof-target-weight" class="input-field" value="74.0">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+            <div>
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Daily Calories</label>
+              <input type="number" id="prof-cal-target" class="input-field" value="2300">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Daily Steps</label>
+              <input type="number" id="prof-step-target" class="input-field" value="10000">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Monthly Gym</label>
+              <input type="number" id="prof-gym-target" class="input-field" value="30">
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-gold); font-weight: 700; display: block; margin-bottom: 4px;">Gym Streak 🔥</label>
+              <input type="number" id="prof-gym-streak" class="input-field" value="30">
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 6px 0;">
+
+          <!-- Cloud Sync Section -->
+          <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-cyan);">☁️ Google Sheets Cloud Backend</span>
+              <button type="button" class="btn-subtle" style="font-size: 0.72rem; padding: 3px 8px;" onclick="window.WolfpackApp.openCloudSyncModal()">Manage Cloud Sync</button>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0;">Sync your weight, steps, meals, and gym days across all devices via your Google Sheet.</p>
+          </div>
+
+          <!-- Data Backup & Restore -->
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-subtle" style="flex: 1; font-size: 0.78rem;" onclick="window.WolfpackApp.exportDataBackup()">💾 Export Data Backup</button>
+            <label class="btn-subtle" style="flex: 1; font-size: 0.78rem; text-align: center; cursor: pointer;">
+              📂 Restore Backup
+              <input type="file" accept=".json" style="display: none;" onchange="window.WolfpackApp.importDataBackup(this)">
+            </label>
+          </div>
+          <button type="button" class="btn-link" style="color: var(--color-rose); align-self: center;" onclick="window.WolfpackApp.resetAllData()">Reset All App Data</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="document.getElementById('profile-modal').classList.remove('active')">Cancel</button>
+        <button class="btn-primary-action" onclick="window.WolfpackApp.saveProfileSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. CREATE CUSTOM FOOD MODAL -->
+  <div id="custom-food-modal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">🥗 Create Custom Food Item</h3>
+        <button class="btn-close-modal" onclick="document.getElementById('custom-food-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Food Name *</label>
+            <input type="text" id="cf-name" class="input-field" placeholder="e.g. Homemade Protein Shake">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Serving Size</label>
+              <input type="number" id="cf-serving" class="input-field" value="100" placeholder="100">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Unit</label>
+              <input type="text" id="cf-unit" class="input-field" value="g" placeholder="g / ml / scoop">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px;">
+            <div>
+              <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-gold); font-weight: 700; display: block; margin-bottom: 4px;">Calories *</label>
+              <input type="number" id="cf-calories" class="input-field" placeholder="250">
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-cyan); font-weight: 700; display: block; margin-bottom: 4px;">Protein (g)</label>
+              <input type="number" step="0.1" id="cf-protein" class="input-field" placeholder="25">
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-purple); font-weight: 700; display: block; margin-bottom: 4px;">Carbs (g)</label>
+              <input type="number" step="0.1" id="cf-carbs" class="input-field" placeholder="20">
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-rose); font-weight: 700; display: block; margin-bottom: 4px;">Fat (g)</label>
+              <input type="number" step="0.1" id="cf-fat" class="input-field" placeholder="5">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="document.getElementById('custom-food-modal').classList.remove('active')">Cancel</button>
+        <button class="btn-primary-action" onclick="window.WolfpackApp.saveCustomFood()">Add to Database</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. GOOGLE SHEETS CLOUD SYNC MODAL -->
+  <div id="cloud-sync-modal" class="modal-overlay">
+    <div class="modal-window" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title">☁️ Google Sheets Cloud Backend</h3>
+        <button class="btn-close-modal" onclick="document.getElementById('cloud-sync-modal').classList.remove('active')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label style="font-size: 0.78rem; text-transform: uppercase; color: var(--color-cyan); font-weight: 700; display: block; margin-bottom: 6px;">Google Apps Script Web App URL</label>
+            <input type="url" id="cloud-script-url" class="input-field" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-subtle" style="flex: 1;" onclick="window.WolfpackApp.testCloudConnection()">⚡ Test Connection</button>
+            <button type="button" class="btn-primary-action" style="flex: 1;" onclick="window.WolfpackApp.saveCloudScriptUrl()">💾 Save URL</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
+            <button type="button" class="btn-subtle" style="border-color: var(--color-cyan); color: var(--color-cyan);" onclick="window.WolfpackCloudSync.syncToCloud()">
+              ⬆️ Push to Google Sheets
+            </button>
+            <button type="button" class="btn-subtle" style="border-color: var(--color-gold); color: var(--color-gold);" onclick="window.WolfpackCloudSync.pullFromCloud()">
+              ⬇️ Pull from Google Sheets
+            </button>
+          </div>
+
+          <!-- Step by Step Setup Guide -->
+          <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-top: 6px;">
+            <strong style="font-size: 0.85rem; color: var(--text-primary); display: block; margin-bottom: 8px;">🚀 Quick 60-Second Setup Guide:</strong>
+            <ol style="font-size: 0.78rem; color: var(--text-secondary); padding-left: 18px; line-height: 1.6;">
+              <li>Create a new sheet at <a href="https://sheets.new" target="_blank" style="color: var(--color-cyan);">sheets.new</a></li>
+              <li>Click <strong>Extensions > Apps Script</strong></li>
+              <li>Copy and paste all code from <code style="background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px;">google_apps_script.js</code> in this project</li>
+              <li>Click <strong>Deploy > New deployment</strong>, select type <strong>Web App</strong>, set <em>Who has access</em> to <strong>"Anyone"</strong>, click Deploy and paste the URL above!</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-subtle" onclick="document.getElementById('cloud-sync-modal').classList.remove('active')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/foodData.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/tracker.js"></script>
+  <script src="js/cloudSync.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
