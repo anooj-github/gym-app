@@ -143,22 +143,36 @@ window.WolfpackApp = {
 
   switchTab(tabId) {
     this.activeTab = tabId;
+    
+    // Update desktop nav buttons
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 
+    // Update mobile bottom dock buttons
     document.querySelectorAll('.mob-nav-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 
+    // Switch visible tab panel
     document.querySelectorAll('.tab-content-panel').forEach(panel => {
       panel.classList.toggle('active', panel.id === `tab-${tabId}`);
     });
 
-    if (tabId === 'calendar') {
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Refresh content for selected tab
+    if (tabId === 'dashboard') {
+      this.renderDashboardMetrics();
+    } else if (tabId === 'calendar') {
       window.WolfpackCalendar.render();
-    } else if (tabId === 'analytics' || tabId === 'dashboard') {
-      setTimeout(() => this.renderCharts(), 50);
+    } else if (tabId === 'nutrition') {
+      this.renderLoggedFoodsList();
+    } else if (tabId === 'workouts') {
+      this.renderWorkoutsList();
+    } else if (tabId === 'analytics') {
+      setTimeout(() => this.renderCharts(), 60);
     }
   },
 

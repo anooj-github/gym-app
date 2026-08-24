@@ -1634,19 +1634,27 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   color: var(--text-secondary);
   font-family: var(--font-heading);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   gap: 2px;
   cursor: pointer;
   flex: 1;
-  padding: 8px 0;
+  min-width: 0;
+  padding: 6px 1px;
   transition: var(--transition-smooth);
 }
 
 .mob-nav-icon {
-  font-size: 1.3rem;
+  font-size: 1.18rem;
   line-height: 1;
   transition: var(--transition-smooth);
+}
+
+.mob-nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .mob-nav-btn:hover,

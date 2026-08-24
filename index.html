@@ -28,7 +28,7 @@
   <div class="app-wrapper">
     <!-- Header -->
     <header class="app-header">
-      <div class="brand-section">
+      <div class="brand-section" onclick="window.WolfpackApp.switchTab('dashboard')" style="cursor: pointer;" title="Go to Dashboard Home">
         <div class="brand-logo-icon">🐺</div>
         <div class="brand-titles">
           <h1>Wolfpack <span class="text-cyan">PRO</span></h1>
@@ -442,15 +442,19 @@
     </button>
   </div>
 
-  <!-- Mobile Bottom Navigation Dock (Gym Calendar | Food & Cals | [+] Quick Add | Workouts | Analytics) -->
+  <!-- Mobile Bottom Navigation Dock (Dashboard | Calendar | Food | [+] Quick Add | Workouts | Analytics) -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mob-nav-btn active" data-tab="dashboard" onclick="window.WolfpackApp.switchTab('dashboard')">
+      <span class="mob-nav-icon">📊</span>
+      <span class="mob-nav-label">Home</span>
+    </button>
     <button class="mob-nav-btn" data-tab="calendar" onclick="window.WolfpackApp.switchTab('calendar')">
       <span class="mob-nav-icon">📅</span>
       <span class="mob-nav-label">Calendar</span>
     </button>
     <button class="mob-nav-btn" data-tab="nutrition" onclick="window.WolfpackApp.switchTab('nutrition')">
       <span class="mob-nav-icon">🥗</span>
-      <span class="mob-nav-label">Food & Cals</span>
+      <span class="mob-nav-label">Food</span>
     </button>
     <div class="mob-nav-center-wrap">
       <button class="mob-center-plus-btn" onclick="window.WolfpackApp.openQuickAddModal()" title="Quick Add">

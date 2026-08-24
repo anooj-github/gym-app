@@ -54,27 +54,16 @@ window.WolfpackTracker = {
   init() {
     this.loadState();
     
-    // Ensure active profile matches requested user data
-    this.userProfile.heightCm = 172;
-    this.userProfile.targetWeightKg = 74.0;
-    this.userProfile.monthlyGymTarget = 30;
-    this.userProfile.totalGymCount = 30;
-    this.userProfile.gymStreak = 30;
+    // Set profile defaults if not present
+    if (!this.userProfile.heightCm) this.userProfile.heightCm = 172;
+    if (!this.userProfile.targetWeightKg) this.userProfile.targetWeightKg = 74.0;
+    if (!this.userProfile.monthlyGymTarget) this.userProfile.monthlyGymTarget = 30;
+    if (!this.userProfile.totalGymCount) this.userProfile.totalGymCount = 30;
+    if (!this.userProfile.gymStreak) this.userProfile.gymStreak = 30;
 
-    // Clear any previous gym status on all existing dates
-    Object.keys(this.dailyData).forEach(k => {
-      if (this.dailyData[k] && this.dailyData[k].gymDay) {
-        this.dailyData[k].gymDay.isGymDay = false;
-        this.dailyData[k].gymDay.notes = '';
-      }
-    });
+    const isFirstRun = !localStorage.getItem('wolfpack_initialized_v2');
 
-    const gymMap = {};
-    this.EXACT_GYM_LOGS.forEach(item => {
-      gymMap[item.date] = item;
-    });
-
-    // Populate exact 30 gym dates
+    // Populate initial 30 gym dates if they don't exist yet
     this.EXACT_GYM_LOGS.forEach(item => {
       if (!this.dailyData[item.date]) {
         this.dailyData[item.date] = {
@@ -90,31 +79,31 @@ window.WolfpackTracker = {
             exercises: this.getExercisesForSplit(item.splitId)
           }]
         };
-      } else {
+      } else if (isFirstRun) {
+        // Only set on very first run
         this.dailyData[item.date].gymDay = {
           isGymDay: true,
           splitId: item.splitId,
           notes: item.name
         };
-        if (!this.dailyData[item.date].workouts || this.dailyData[item.date].workouts.length === 0) {
-          this.dailyData[item.date].workouts = [{
-            id: 'wo_' + item.date.replace(/-/g, ''),
-            title: item.name + ' Routine',
-            durationMinutes: 50,
-            exercises: this.getExercisesForSplit(item.splitId)
-          }];
-        }
       }
     });
 
-    // Ensure today's date (current day) has weight = 74.0, steps = 0, foods = []
+    // Ensure today's entry exists with defaults without wiping out user's logged entries
     const todayKey = this.getTodayKey();
-    const todayData = this.getDayData(todayKey);
-    todayData.weight = 74.0;
-    todayData.steps = 0;
-    todayData.foods = [];
-    if (!gymMap[todayKey]) {
-      todayData.gymDay = { isGymDay: false, splitId: 'chest_triceps', notes: '' };
+    if (!this.dailyData[todayKey]) {
+      this.dailyData[todayKey] = {
+        weight: 74.0,
+        steps: 0,
+        water: 0,
+        foods: [],
+        gymDay: { isGymDay: false, splitId: 'chest_triceps', notes: '' },
+        workouts: []
+      };
+    }
+
+    if (isFirstRun) {
+      localStorage.setItem('wolfpack_initialized_v2', 'true');
     }
 
     this.saveState();
