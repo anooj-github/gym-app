@@ -1,11 +1,13 @@
 // Wolfpack Google Sheets & Google Apps Script Cloud Sync Module
 window.WolfpackCloudSync = {
+  DEFAULT_URL: 'https://script.google.com/macros/s/AKfycbx60HlMxGSKoqjDW921Emacb6VLQpZhunNfa40FP3EpM8jqMrwCPc2OrWF6WVhIOZp1/exec',
   scriptUrl: '',
   isSyncing: false,
   autoSyncTimeout: null,
 
   init() {
-    this.scriptUrl = localStorage.getItem('wolfpack_apps_script_url') || '';
+    this.scriptUrl = localStorage.getItem('wolfpack_apps_script_url') || this.DEFAULT_URL;
+    localStorage.setItem('wolfpack_apps_script_url', this.scriptUrl);
     this.updateStatusBadge();
   },
 
