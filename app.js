@@ -181,7 +181,7 @@ window.WolfpackApp = {
     if (gymStatusBadge) {
       if (isGymToday) {
         const split = window.WolfpackCalendar.WORKOUT_SPLITS.find(s => s.id === day.gymDay.splitId) || { name: 'Gym Day', icon: '🔥' };
-        gymStatusBadge.innerHTML = `<span class="badge-active">${split.icon} ${split.name.split(' ')[0]}</span>`;
+        gymStatusBadge.innerHTML = `<span class="badge-active">${split.icon} ${split.name}</span>`;
       } else {
         gymStatusBadge.innerHTML = `<span class="badge-inactive">Rest / Off</span>`;
       }

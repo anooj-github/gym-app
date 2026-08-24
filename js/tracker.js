@@ -17,6 +17,40 @@ window.WolfpackTracker = {
   userProfile: {},
   dailyData: {}, // Keyed by YYYY-MM-DD
 
+  // User's exact 30 Gym Dates & 4-Day Split Sequence (Ending on Aug 22: Shoulder - Core)
+  EXACT_GYM_LOGS: [
+    { date: '2026-06-29', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-06-30', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-07-01', splitId: 'legs', name: 'Legs' },
+    { date: '2026-07-02', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-07-03', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-07-04', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-07-06', splitId: 'legs', name: 'Legs' },
+    { date: '2026-07-14', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-07-15', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-07-16', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-07-17', splitId: 'legs', name: 'Legs' },
+    { date: '2026-07-20', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-07-21', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-07-22', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-07-23', splitId: 'legs', name: 'Legs' },
+    { date: '2026-08-03', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-08-04', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-08-05', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-08-06', splitId: 'legs', name: 'Legs' },
+    { date: '2026-08-08', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-08-10', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-08-11', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-08-12', splitId: 'legs', name: 'Legs' },
+    { date: '2026-08-14', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-08-15', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-08-18', splitId: 'shoulder_core', name: 'Shoulder - Core' },
+    { date: '2026-08-19', splitId: 'legs', name: 'Legs' },
+    { date: '2026-08-20', splitId: 'chest_triceps', name: 'Chest - Triceps' },
+    { date: '2026-08-21', splitId: 'back_biceps', name: 'Back - Biceps' },
+    { date: '2026-08-22', splitId: 'shoulder_core', name: 'Shoulder - Core' }
+  ],
+
   init() {
     this.loadState();
     
@@ -24,42 +58,94 @@ window.WolfpackTracker = {
     this.userProfile.heightCm = 172;
     this.userProfile.targetWeightKg = 74.0;
     this.userProfile.monthlyGymTarget = 30;
-    this.userProfile.gymStreak = parseInt(this.userProfile.gymStreak, 10) || 30;
-    
-    const today = new Date();
-    const splits = ['push', 'pull', 'legs', 'upper', 'lower', 'full', 'push'];
+    this.userProfile.totalGymCount = 30;
+    this.userProfile.gymStreak = 30;
 
-    // Ensure 30 consecutive gym days exist in data
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = this.formatDateKey(d);
+    // Clear any previous gym status on all existing dates
+    Object.keys(this.dailyData).forEach(k => {
+      if (this.dailyData[k] && this.dailyData[k].gymDay) {
+        this.dailyData[k].gymDay.isGymDay = false;
+        this.dailyData[k].gymDay.notes = '';
+      }
+    });
 
-      if (!this.dailyData[key]) {
-        this.dailyData[key] = {
+    const gymMap = {};
+    this.EXACT_GYM_LOGS.forEach(item => {
+      gymMap[item.date] = item;
+    });
+
+    // Populate exact 30 gym dates
+    this.EXACT_GYM_LOGS.forEach(item => {
+      if (!this.dailyData[item.date]) {
+        this.dailyData[item.date] = {
           weight: 74.0,
-          steps: 0,
-          water: 0,
+          steps: 8000,
+          water: 2500,
           foods: [],
-          gymDay: { isGymDay: true, splitId: splits[i % splits.length], notes: 'Gym Training Day' },
-          workouts: []
+          gymDay: { isGymDay: true, splitId: item.splitId, notes: item.name },
+          workouts: [{
+            id: 'wo_' + item.date.replace(/-/g, ''),
+            title: item.name + ' Routine',
+            durationMinutes: 50,
+            exercises: this.getExercisesForSplit(item.splitId)
+          }]
         };
       } else {
-        if (!this.dailyData[key].gymDay) {
-          this.dailyData[key].gymDay = { isGymDay: true, splitId: splits[i % splits.length], notes: 'Gym Training Day' };
+        this.dailyData[item.date].gymDay = {
+          isGymDay: true,
+          splitId: item.splitId,
+          notes: item.name
+        };
+        if (!this.dailyData[item.date].workouts || this.dailyData[item.date].workouts.length === 0) {
+          this.dailyData[item.date].workouts = [{
+            id: 'wo_' + item.date.replace(/-/g, ''),
+            title: item.name + ' Routine',
+            durationMinutes: 50,
+            exercises: this.getExercisesForSplit(item.splitId)
+          }];
         }
-        this.dailyData[key].gymDay.isGymDay = true;
       }
-    }
-    
-    // Explicitly reset current day's steps to 0 and calorie intake to 0 as requested
+    });
+
+    // Ensure today's date (current day) has weight = 74.0, steps = 0, foods = []
     const todayKey = this.getTodayKey();
     const todayData = this.getDayData(todayKey);
     todayData.weight = 74.0;
     todayData.steps = 0;
     todayData.foods = [];
-    todayData.gymDay.isGymDay = true;
+    if (!gymMap[todayKey]) {
+      todayData.gymDay = { isGymDay: false, splitId: 'chest_triceps', notes: '' };
+    }
+
     this.saveState();
+  },
+
+  getExercisesForSplit(splitId) {
+    if (splitId === 'chest_triceps') {
+      return [
+        { name: 'Flat Barbell Bench Press', sets: [{ reps: 10, weight: 60 }, { reps: 8, weight: 70 }, { reps: 6, weight: 75 }] },
+        { name: 'Incline Dumbbell Press', sets: [{ reps: 10, weight: 24 }, { reps: 8, weight: 26 }] },
+        { name: 'Triceps Rope Pushdowns', sets: [{ reps: 12, weight: 25 }, { reps: 10, weight: 30 }] }
+      ];
+    } else if (splitId === 'back_biceps') {
+      return [
+        { name: 'Lat Pulldowns', sets: [{ reps: 10, weight: 55 }, { reps: 8, weight: 65 }] },
+        { name: 'Bent-Over Barbell Rows', sets: [{ reps: 10, weight: 50 }, { reps: 8, weight: 60 }] },
+        { name: 'Dumbbell Bicep Curls', sets: [{ reps: 12, weight: 14 }, { reps: 10, weight: 16 }] }
+      ];
+    } else if (splitId === 'shoulder_core') {
+      return [
+        { name: 'Overhead Shoulder Press', sets: [{ reps: 10, weight: 40 }, { reps: 8, weight: 45 }] },
+        { name: 'Dumbbell Lateral Raises', sets: [{ reps: 12, weight: 10 }, { reps: 12, weight: 12 }] },
+        { name: 'Hanging Leg Raises / Core Planks', sets: [{ reps: 15, weight: 0 }, { reps: 15, weight: 0 }] }
+      ];
+    } else { // legs
+      return [
+        { name: 'Barbell Back Squats', sets: [{ reps: 10, weight: 70 }, { reps: 8, weight: 85 }, { reps: 6, weight: 95 }] },
+        { name: 'Romanian Deadlifts', sets: [{ reps: 10, weight: 60 }, { reps: 8, weight: 70 }] },
+        { name: 'Standing Calf Raises', sets: [{ reps: 15, weight: 40 }, { reps: 15, weight: 45 }] }
+      ];
+    }
   },
 
   formatDateKey(date) {

@@ -5,14 +5,13 @@ window.WolfpackCalendar = {
   selectedDateStr: null,
 
   WORKOUT_SPLITS: [
-    { id: 'push', name: 'Push (Chest/Shoulders/Tris)', color: '#f59e0b', icon: '🔥' },
-    { id: 'pull', name: 'Pull (Back/Biceps/Rear Delts)', color: '#00f0ff', icon: '⚡' },
-    { id: 'legs', name: 'Legs & Core', color: '#10b981', icon: '🦵' },
-    { id: 'full', name: 'Full Body', color: '#a855f7', icon: '⚔️' },
-    { id: 'cardio', name: 'Cardio / HIIT / Run', color: '#ec4899', icon: '🏃' },
-    { id: 'upper', name: 'Upper Body Power', color: '#3b82f6', icon: '💪' },
-    { id: 'lower', name: 'Lower Body Strength', color: '#14b8a6', icon: '🏋️' },
-    { id: 'rest', name: 'Active Recovery / Rest', color: '#64748b', icon: '🧘' }
+    { id: 'chest_triceps', name: 'Chest - Triceps', shortName: 'Chest-Tris', color: '#f59e0b', icon: '🔥' },
+    { id: 'back_biceps', name: 'Back - Biceps', shortName: 'Back-Bi', color: '#00f0ff', icon: '⚡' },
+    { id: 'shoulder_core', name: 'Shoulder - Core', shortName: 'Shoulder-Core', color: '#a855f7', icon: '🛡️' },
+    { id: 'legs', name: 'Legs', shortName: 'Legs', color: '#10b981', icon: '🦵' },
+    { id: 'full', name: 'Full Body', shortName: 'Full Body', color: '#3b82f6', icon: '⚔️' },
+    { id: 'cardio', name: 'Cardio / HIIT', shortName: 'Cardio', color: '#ec4899', icon: '🏃' },
+    { id: 'rest', name: 'Rest / Active Recovery', shortName: 'Rest', color: '#64748b', icon: '🧘' }
   ],
 
   init() {
@@ -111,7 +110,7 @@ window.WolfpackCalendar = {
         gymBadge = `
           <div class="gym-badge" style="background: ${split.color}22; border-color: ${split.color}; color: ${split.color}">
             <span class="gym-badge-icon">${split.icon}</span>
-            <span class="gym-badge-text">${split.name.split(' ')[0]}</span>
+            <span class="gym-badge-text">${split.shortName || split.name}</span>
           </div>
         `;
       }
